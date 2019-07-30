@@ -122,5 +122,10 @@ resource "azurerm_virtual_machine_scale_set" "panfw_scale" {
     }
   }
 
+  boot_diagnostics {
+    enabled = true
+    storage_uri = "${data.azurerm_storage_account.pan_bootstrap_data.primary_blob_endpoint}"
+  }
+
   tags = "${var.tags}"
 }
