@@ -50,7 +50,7 @@ resource "azurerm_network_interface" "Management" {
     ip_configuration {
         name                            = "${var.generel_int_name}-ip-0"
         subnet_id                       = "${var.vnet_subnet_id_mgmt}"
-        private_ip_address_allocation     = "dynamic"
+        private_ip_address_allocation     = "static"
         public_ip_address_id = "${azurerm_public_ip.pip.id}"
     }
     network_security_group_id = "${azurerm_network_security_group.open.id}"
