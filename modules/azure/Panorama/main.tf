@@ -13,31 +13,28 @@ resource "azurerm_public_ip" "pip" {
     resource_group_name             = "${var.resource_group_name}"
     public_ip_address_allocation    = "static"
     sku								              = "Standard"
-    
-    tags {
-     displayname = "${join("", list("PublicNetworkinterfaces", ""))}"
-     }
+    tags                            = {displayname = "${join("", list("PublicNetworkinterfaces", ""))}"}
 }
 
 # ********** NSG for the Public IP **********
 
 # Create NSG
 resource "azurerm_network_security_group" "open" {
-  name                	= "open"
+  name                	= "${var.generel_int_name}-nsg"
   location            	= "${var.location}"
   resource_group_name 	= "${var.resource_group_name}"
 
 # Create Security Rules
 
   security_rule {
-    name                       = "Deafult-Allow-Any"
+    name                       = "Deafult-Allow-Inside"
     priority                   = 100
     direction                  = "Inbound"
     access                     = "Allow"
     protocol                   = "*"
     source_port_range          = "*"
     destination_port_range     = "*"
-    source_address_prefix      = "*"
+    source_address_prefix      = "10.0.0.0/8"
     destination_address_prefix = "*"
   }
 }
@@ -65,7 +62,7 @@ resource "azurerm_network_interface" "Management" {
 # Create the virtual machine. Use the "count" variable to define how many
 # to create.
 resource "azurerm_virtual_machine" "panorama" {
-    name                          = "${var.pan_hostname}"
+    name                          = "${var.generel_int_name}"
     location                      = "${var.location}"
     resource_group_name           = "${var.resource_group_name}"
     network_interface_ids         = ["${azurerm_network_interface.Management.id}"]
@@ -87,14 +84,11 @@ resource "azurerm_virtual_machine" "panorama" {
       }
 
     storage_os_disk {
-        name                = "pa-panorama-os-disk"
+        name                = "${var.generel_int_name}-os-disk"
         caching             = "ReadWrite"
         create_option       = "FromImage"
         managed_disk_type   = "Premium_LRS"
     }
-
-    delete_os_disk_on_termination    = true
-    delete_data_disks_on_termination = true
 
     os_profile     {
         computer_name     = "${var.pan_hostname}"
